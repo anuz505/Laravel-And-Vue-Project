@@ -1,59 +1,276 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Todo Application - Laravel + Vue.js with Docker
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A full-stack todo application built with Laravel backend API and Vue.js frontend, fully containerized using Docker and Docker Compose. This project demonstrates DevOps best practices including multi-container orchestration, load balancing, and service isolation.
 
-## About Laravel
+## 📋 Task Description
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+1. **Setup a Laravel application with Nginx and MySQL using Docker Compose**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+    - Configure Laravel API backend
+    - Setup MySQL database
+    - Configure Nginx as reverse proxy with load balancing
+    - Implement multiple PHP-FPM instances for high availability
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+2. **Setup a Vue.js application and deploy using Docker**
+    - Build modern Vue.js frontend with Tailwind CSS
+    - Configure Vite development server
+    - Containerize the frontend application
 
-## Learning Laravel
+## 🚀 Technologies Used
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Backend
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   **Laravel 11** - PHP web framework
+-   **MySQL 8.0** - Relational database
+-   **Nginx** - Web server and reverse proxy with load balancing
+-   **PHP-FPM 8.2** - FastCGI Process Manager (2 instances) and can be scaled for more.
 
-## Laravel Sponsors
+### Frontend
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+-   **Vue.js 3** - Progressive JavaScript framework
+-   **Vite** - Next-generation frontend tooling
+-   **Tailwind CSS** - Utility-first CSS framework
+-   **Axios** - HTTP client for API calls
 
-### Premium Partners
+### DevOps
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+-   **Docker** - Containerization platform
+-   **Docker Compose** - Multi-container orchestration
+-   **Git** - Version control
 
-## Contributing
+## 📁 Project Structure
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+todo-api/
+├── app/                          # Laravel application code
+│   ├── Http/
+│   │   └── Controllers/
+│   │       └── TodoController.php   # API endpoints for todos
+│   └── Models/
+│       ├── Todo.php              # Todo model
+│       └── User.php              # User model
+├── client/                       # Vue.js frontend application
+│   ├── public/                   # Static assets
+│   ├── src/
+│   │   ├── assets/
+│   │   │   └── main.css          # Tailwind CSS styles
+│   │   ├── components/
+│   │   │   └── TodoList.vue      # Main todo component
+│   │   ├── services/
+│   │   │   └── api.js            # API service layer
+│   │   ├── App.vue               # Root component
+│   │   └── main.js               # Vue app entry point
+│   ├── Dockerfile                # Frontend Docker configuration
+│   ├── package.json              # Frontend dependencies
+│   ├── tailwind.config.js        # Tailwind configuration
+│   └── vite.config.js            # Vite configuration
+├── config/                       # Laravel configuration files
+│   ├── app.php
+│   ├── cors.php                  # CORS configuration
+│   └── database.php              # Database configuration
+├── database/
+│   └── migrations/
+│       └── 2026_01_08_150831_create_todos_table.php
+├── docker/
+│   └── nginx.conf                # Nginx configuration with load balancing
+├── routes/
+│   └── api.php                   # API routes
+├── docker-compose.yml            # Multi-container orchestration
+├── Dockerfile                    # Backend Docker configuration
+└── README.md                     # This file
+```
 
-## Code of Conduct
+## 🏗️ Architecture
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+The application uses a **microservices architecture** with the following containers:
 
-## Security Vulnerabilities
+1. **php1 & php2** - Two PHP-FPM instances for load balancing
+2. **nginx** - Reverse proxy and load balancer (port 8000)
+3. **db** - MySQL database server (port 3307)
+4. **frontend** - Vue.js development server (port 5173)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+All services communicate through a custom Docker network `todo-network`.
 
-## License
+## 🛠️ Setup Instructions
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Prerequisites
+
+-   Docker Desktop (Windows/Mac) or Docker Engine (Linux)
+-   Docker Compose V2
+-   Git
+
+### Installation Steps
+
+1. **Clone the repository**
+
+    ```bash
+    git clone <your-repo-url>
+    cd todo-api
+    ```
+
+2. **Start all services with Docker Compose**
+
+    ```bash
+    docker-compose up -d
+    ```
+
+    This command will:
+
+    - Build all Docker images
+    - Create and start all containers
+    - Setup the MySQL database
+    - Run Laravel migrations automatically
+    - Start the frontend development server
+
+3. **Verify all containers are running**
+
+    ```bash
+    docker-compose ps
+    ```
+
+    You should see 5 containers running:
+
+    - `todo-api-php1`
+    - `todo-api-php2`
+    - `todo-api-nginx`
+    - `todo-api-db`
+    - `frontend`
+
+4. **Access the application**
+    - **Frontend**: http://localhost:5173
+    - **Backend API**: http://localhost:8000/api
+    - **Health Check**: http://localhost:8000
+
+## 📡 API Endpoints
+
+| Method | Endpoint                 | Description                   |
+| ------ | ------------------------ | ----------------------------- |
+| GET    | `/api/todos`             | Get all todos                 |
+| POST   | `/api/todos`             | Create a new todo             |
+| GET    | `/api/todos/{id}`        | Get a specific todo           |
+| PUT    | `/api/todos/{id}`        | Update a todo                 |
+| PATCH  | `/api/todos/{id}/toggle` | Toggle todo completion status |
+| DELETE | `/api/todos/{id}`        | Delete a todo                 |
+
+### Example API Request
+
+```bash
+# Create a todo
+curl -X POST http://localhost:8000/api/todos \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Learn Docker", "description": "Master containerization", "is_completed": false}'
+
+# Get all todos
+curl http://localhost:8000/api/todos
+```
+
+## 🎨 Features
+
+### Backend Features
+
+-   RESTful API architecture
+-   Database migrations
+-   CORS configuration for frontend communication
+-   Load balanced across 2 PHP-FPM instances
+-   Automatic migration on container startup
+
+### Frontend Features
+
+-   Modern black & white brutalist design
+-   Real-time todo management (Create, Read, Update, Delete)
+-   Task completion tracking
+-   Statistics dashboard (Total, Done, Pending)
+-   Responsive design for mobile and desktop
+-   Form validation
+-   Error handling and loading states
+
+## 🐳 Docker Configuration Details
+
+### Nginx Load Balancing
+
+The Nginx configuration (`docker/nginx.conf`) implements **round-robin load balancing** between two PHP-FPM containers:
+
+```nginx
+upstream php-fpm {
+    server php1:9000;
+    server php2:9000;
+}
+```
+
+### Volume Mounting
+
+-   Backend code mounted at `/var/www` for hot-reloading
+-   Frontend code mounted at `/app` with node_modules persistence
+-   MySQL data persisted in `dbdata` volume
+
+## 🔧 Troubleshooting
+
+### Stop all containers
+
+```bash
+docker-compose down
+```
+
+### Rebuild containers after code changes
+
+```bash
+docker-compose up -d --build
+```
+
+### View logs
+
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f frontend
+docker-compose logs -f nginx
+```
+
+### Access container shell
+
+```bash
+# Backend
+docker exec -it todo-api-php1 sh
+
+# Frontend
+docker exec -it frontend sh
+
+# Database
+docker exec -it todo-api-db mysql -u root -p
+```
+
+### Reset database
+
+```bash
+docker-compose down -v
+docker-compose up -d
+```
+
+## 🚦 Testing the Application
+
+1. Open http://localhost:5173 in your browser
+2. Add a new todo task using the form
+3. Click the checkbox to mark tasks as complete
+4. Edit tasks using the edit button (appears on hover)
+5. Delete tasks using the delete button
+6. View statistics in the dashboard (Total, Done, Pending)
+
+## 📝 Development Workflow
+
+### Adding New Features
+
+1. **Backend**: Add routes in `routes/api.php` and controllers in `app/Http/Controllers/`
+2. **Frontend**: Create components in `client/src/components/` and update services in `client/src/services/`
+3. **Database**: Create migrations using `docker exec -it todo-api-php1 php artisan make:migration`
+
+### Environment Variables
+
+Backend environment variables are configured in `.env` file:
+
+-   `DB_HOST=db`
+-   `DB_PORT=3306`
+-   `DB_DATABASE=todo_db`
+-   `DB_USERNAME=todo_user`
+-   `DB_PASSWORD=secret`
