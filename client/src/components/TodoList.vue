@@ -1,148 +1,321 @@
 <template>
-    <div class="todo-app">
-        <div class="container">
-            <h1 class="app-title">📝 My Todo List</h1>
+    <div class="min-h-screen bg-white text-black font-sans">
+        <!-- Decorative Lines -->
+        <div class="fixed top-0 left-0 w-full h-2 bg-black"></div>
+        <div class="fixed bottom-0 left-0 w-full h-2 bg-black"></div>
+
+        <div class="max-w-5xl mx-auto px-4 py-12 md:py-20">
+            <!-- Header -->
+            <div class="mb-16 relative">
+                <div class="absolute -left-4 top-0 bottom-0 w-1 bg-black"></div>
+                <h1
+                    class="text-8xl md:text-9xl font-black tracking-tighter mb-2 relative"
+                    style="text-shadow: 6px 6px 0px #000"
+                >
+                    TODO
+                </h1>
+                <p
+                    class="text-gray-900 text-xs uppercase tracking-[0.3em] font-mono ml-1"
+                >
+                    {{ currentDate }}
+                </p>
+            </div>
 
             <!-- Add Todo Form -->
-            <div class="add-todo-section">
-                <form @submit.prevent="handleAddTodo" class="todo-form">
-                    <div class="form-group">
+            <div
+                class="mb-16 bg-black text-white p-8 md:p-10 relative overflow-hidden group"
+            >
+                <!-- Corner accents -->
+                <div
+                    class="absolute top-0 left-0 w-20 h-20 border-t-4 border-l-4 border-white"
+                ></div>
+                <div
+                    class="absolute bottom-0 right-0 w-20 h-20 border-b-4 border-r-4 border-white"
+                ></div>
+
+                <form @submit.prevent="handleAddTodo">
+                    <div class="space-y-5">
                         <input
                             v-model="newTodo.title"
                             type="text"
-                            placeholder="What needs to be done?"
-                            class="todo-input"
+                            placeholder="WHAT NEEDS TO BE DONE?"
+                            class="w-full px-6 py-5 text-xl font-bold bg-white text-black border-4 border-black focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all placeholder:text-gray-400 placeholder:font-normal"
                             required
                         />
-                    </div>
-                    <div class="form-group">
                         <textarea
                             v-model="newTodo.description"
-                            placeholder="Description (optional)"
-                            class="todo-textarea"
-                            rows="2"
+                            placeholder="Add details... (optional)"
+                            class="w-full px-6 py-5 bg-white text-black border-4 border-black focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all resize-none placeholder:text-gray-400"
+                            rows="3"
                         ></textarea>
+                        <button
+                            type="submit"
+                            class="w-full py-5 bg-white text-black font-black text-lg border-4 border-white hover:bg-black hover:text-white hover:border-white active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
+                            :disabled="loading"
+                        >
+                            {{ loading ? "ADDING..." : "+ ADD TASK" }}
+                        </button>
                     </div>
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                        :disabled="loading"
-                    >
-                        {{ loading ? "Adding..." : "+ Add Todo" }}
-                    </button>
                 </form>
             </div>
 
             <!-- Error Message -->
-            <div v-if="error" class="error-message">
-                {{ error }}
+            <div
+                v-if="error"
+                class="mb-6 bg-black text-white px-6 py-4 border-4 border-black font-bold uppercase tracking-wide"
+            >
+                ⚠️ {{ error }}
+            </div>
+
+            <!-- Stats Bar -->
+            <div
+                v-if="todos.length > 0"
+                class="mb-8 grid grid-cols-3 gap-4 text-sm font-mono"
+            >
+                <div
+                    class="bg-white text-black px-6 py-6 text-center border-4 border-black relative overflow-hidden group hover:bg-black hover:text-white transition-all"
+                >
+                    <div class="text-4xl font-black mb-1">
+                        {{ todos.length }}
+                    </div>
+                    <div class="text-xs uppercase tracking-[0.2em] font-bold">
+                        TOTAL
+                    </div>
+                    <div
+                        class="absolute top-0 right-0 w-0 h-0 border-t-[30px] border-r-[30px] border-t-black border-r-transparent group-hover:border-t-white"
+                    ></div>
+                </div>
+                <div
+                    class="bg-black text-white px-6 py-6 text-center border-4 border-black relative overflow-hidden group hover:bg-white hover:text-black transition-all"
+                >
+                    <div class="text-4xl font-black mb-1">
+                        {{ completedCount }}
+                    </div>
+                    <div class="text-xs uppercase tracking-[0.2em] font-bold">
+                        DONE
+                    </div>
+                    <div
+                        class="absolute top-0 right-0 w-0 h-0 border-t-[30px] border-r-[30px] border-t-white border-r-transparent group-hover:border-t-black"
+                    ></div>
+                </div>
+                <div
+                    class="bg-white text-black px-6 py-6 text-center border-4 border-black relative overflow-hidden group hover:bg-black hover:text-white transition-all"
+                >
+                    <div class="text-4xl font-black mb-1">
+                        {{ pendingCount }}
+                    </div>
+                    <div class="text-xs uppercase tracking-[0.2em] font-bold">
+                        PENDING
+                    </div>
+                    <div
+                        class="absolute top-0 right-0 w-0 h-0 border-t-[30px] border-r-[30px] border-t-black border-r-transparent group-hover:border-t-white"
+                    ></div>
+                </div>
             </div>
 
             <!-- Loading State -->
-            <div v-if="loading && todos.length === 0" class="loading">
-                Loading todos...
+            <div v-if="loading && todos.length === 0" class="text-center py-20">
+                <div
+                    class="inline-block animate-spin h-16 w-16 border-8 border-black border-t-transparent"
+                ></div>
+                <p
+                    class="mt-6 text-black font-mono font-bold uppercase tracking-wider"
+                >
+                    Loading tasks...
+                </p>
+            </div>
+
+            <!-- Empty State -->
+            <div
+                v-else-if="todos.length === 0"
+                class="text-center py-20 border-4 border-dashed border-black bg-white"
+            >
+                <div class="text-8xl mb-6">✏️</div>
+                <p
+                    class="text-black text-2xl font-black uppercase tracking-wider mb-2"
+                >
+                    No tasks yet
+                </p>
+                <p class="text-gray-700 text-sm font-mono">
+                    Add your first task to get started
+                </p>
             </div>
 
             <!-- Todo List -->
-            <div v-else class="todos-container">
-                <div v-if="todos.length === 0" class="empty-state">
-                    <p>No todos yet. Add one to get started! 🎯</p>
-                </div>
+            <div v-else class="space-y-4">
+                <div
+                    v-for="todo in todos"
+                    :key="todo.id"
+                    class="group bg-white text-black border-4 border-black hover:translate-x-2 hover:translate-y-2 transition-all duration-200 relative"
+                    :class="{ 'opacity-50': todo.is_completed }"
+                    style="box-shadow: 8px 8px 0px #000"
+                >
+                    <div class="p-6 md:p-8">
+                        <div class="flex items-start gap-5">
+                            <!-- Checkbox -->
+                            <button
+                                @click="handleToggleTodo(todo.id)"
+                                class="mt-1 flex-shrink-0 w-8 h-8 border-4 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all transform hover:rotate-12"
+                                :class="
+                                    todo.is_completed
+                                        ? 'bg-black text-white'
+                                        : 'bg-white'
+                                "
+                            >
+                                <svg
+                                    v-if="todo.is_completed"
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="4"
+                                        d="M5 13l4 4L19 7"
+                                    />
+                                </svg>
+                            </button>
 
-                <div v-else class="todos-list">
-                    <div
-                        v-for="todo in todos"
-                        :key="todo.id"
-                        class="todo-item"
-                        :class="{ completed: todo.is_completed }"
-                    >
-                        <div class="todo-content">
-                            <input
-                                type="checkbox"
-                                :checked="todo.is_completed"
-                                @change="handleToggleTodo(todo.id)"
-                                class="todo-checkbox"
-                            />
-                            <div class="todo-details">
-                                <h3 class="todo-title">{{ todo.title }}</h3>
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <h3
+                                    class="text-xl md:text-2xl font-black mb-2 uppercase tracking-tight"
+                                    :class="
+                                        todo.is_completed
+                                            ? 'line-through text-gray-400'
+                                            : ''
+                                    "
+                                >
+                                    {{ todo.title }}
+                                </h3>
                                 <p
                                     v-if="todo.description"
-                                    class="todo-description"
+                                    class="text-gray-700 text-sm mb-3 font-mono"
                                 >
                                     {{ todo.description }}
                                 </p>
-                                <span class="todo-date">
+                                <div
+                                    class="text-xs text-gray-500 font-mono uppercase tracking-wider"
+                                >
                                     {{ formatDate(todo.created_at) }}
-                                </span>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div
+                                class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                                <button
+                                    @click="startEdit(todo)"
+                                    class="px-4 py-4 bg-white border-4 border-black hover:bg-black hover:text-white transition-all transform hover:-rotate-6"
+                                    title="Edit"
+                                >
+                                    <svg
+                                        class="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                        />
+                                    </svg>
+                                </button>
+                                <button
+                                    @click="handleDeleteTodo(todo.id)"
+                                    class="px-4 py-4 bg-black text-white border-4 border-black hover:bg-white hover:text-black transition-all transform hover:rotate-6"
+                                    title="Delete"
+                                >
+                                    <svg
+                                        class="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
-                        <div class="todo-actions">
-                            <button
-                                @click="startEdit(todo)"
-                                class="btn btn-edit"
-                                title="Edit"
-                            >
-                                ✏️
-                            </button>
-                            <button
-                                @click="handleDeleteTodo(todo.id)"
-                                class="btn btn-delete"
-                                title="Delete"
-                            >
-                                🗑️
-                            </button>
-                        </div>
                     </div>
-                </div>
-
-                <!-- Stats -->
-                <div v-if="todos.length > 0" class="stats">
-                    <span>Total: {{ todos.length }}</span>
-                    <span>Completed: {{ completedCount }}</span>
-                    <span>Pending: {{ pendingCount }}</span>
+                    <!-- Decorative corner -->
+                    <div
+                        class="absolute -top-2 -right-2 w-6 h-6 bg-black"
+                    ></div>
                 </div>
             </div>
 
             <!-- Edit Modal -->
             <div
                 v-if="editingTodo"
-                class="modal-overlay"
+                class="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center p-4 z-50"
                 @click.self="cancelEdit"
             >
-                <div class="modal">
-                    <h2>Edit Todo</h2>
-                    <form @submit.prevent="handleUpdateTodo" class="todo-form">
-                        <div class="form-group">
-                            <label>Title</label>
+                <div
+                    class="bg-white text-black p-10 max-w-lg w-full border-8 border-black relative"
+                    style="box-shadow: 16px 16px 0px rgba(255, 255, 255, 0.2)"
+                >
+                    <!-- Decorative corners -->
+                    <div
+                        class="absolute top-0 left-0 w-16 h-16 border-t-8 border-l-8 border-black"
+                    ></div>
+                    <div
+                        class="absolute bottom-0 right-0 w-16 h-16 border-b-8 border-r-8 border-black"
+                    ></div>
+
+                    <h2
+                        class="text-4xl font-black mb-8 uppercase tracking-tighter"
+                    >
+                        Edit Task
+                    </h2>
+                    <form @submit.prevent="handleUpdateTodo" class="space-y-6">
+                        <div>
+                            <label
+                                class="block text-xs font-black mb-3 uppercase tracking-[0.2em]"
+                                >Title</label
+                            >
                             <input
                                 v-model="editForm.title"
                                 type="text"
-                                class="todo-input"
+                                class="w-full px-5 py-4 bg-white border-4 border-black focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all font-bold"
                                 required
                             />
                         </div>
-                        <div class="form-group">
-                            <label>Description</label>
+                        <div>
+                            <label
+                                class="block text-xs font-black mb-3 uppercase tracking-[0.2em]"
+                                >Description</label
+                            >
                             <textarea
                                 v-model="editForm.description"
-                                class="todo-textarea"
-                                rows="3"
+                                class="w-full px-5 py-4 bg-white border-4 border-black focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all resize-none font-mono"
+                                rows="4"
                             ></textarea>
                         </div>
-                        <div class="modal-actions">
+                        <div class="flex gap-4 pt-4">
                             <button
                                 type="button"
                                 @click="cancelEdit"
-                                class="btn btn-secondary"
+                                class="flex-1 py-4 bg-white text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase tracking-wider transition-all"
                             >
-                                Cancel
+                                CANCEL
                             </button>
                             <button
                                 type="submit"
-                                class="btn btn-primary"
+                                class="flex-1 py-4 bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase tracking-wider transition-all disabled:opacity-50"
                                 :disabled="loading"
                             >
-                                {{ loading ? "Saving..." : "Save Changes" }}
+                                {{ loading ? "SAVING..." : "SAVE" }}
                             </button>
                         </div>
                     </form>
@@ -178,6 +351,18 @@ const completedCount = computed(() => {
 
 const pendingCount = computed(() => {
     return todos.value.filter((todo) => !todo.is_completed).length;
+});
+
+const currentDate = computed(() => {
+    const date = new Date();
+    return date
+        .toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        })
+        .toUpperCase();
 });
 
 // Fetch todos
@@ -299,303 +484,3 @@ onMounted(() => {
     fetchTodos();
 });
 </script>
-
-<style scoped>
-.todo-app {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 2rem 1rem;
-}
-
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.app-title {
-    text-align: center;
-    color: white;
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.add-todo-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    margin-bottom: 2rem;
-}
-
-.todo-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.form-group label {
-    font-weight: 600;
-    color: #333;
-}
-
-.todo-input,
-.todo-textarea {
-    padding: 0.75rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-family: inherit;
-    transition: border-color 0.3s;
-}
-
-.todo-input:focus,
-.todo-textarea:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-.todo-textarea {
-    resize: vertical;
-}
-
-.btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.btn-secondary {
-    background: #6c757d;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background: #5a6268;
-}
-
-.btn-edit {
-    background: transparent;
-    padding: 0.5rem;
-    font-size: 1.2rem;
-}
-
-.btn-edit:hover {
-    transform: scale(1.1);
-}
-
-.btn-delete {
-    background: transparent;
-    padding: 0.5rem;
-    font-size: 1.2rem;
-}
-
-.btn-delete:hover {
-    transform: scale(1.1);
-}
-
-.error-message {
-    background: #f44336;
-    color: white;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.loading {
-    text-align: center;
-    color: white;
-    font-size: 1.2rem;
-    padding: 2rem;
-}
-
-.todos-container {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.empty-state {
-    text-align: center;
-    padding: 3rem;
-    color: #666;
-    font-size: 1.1rem;
-}
-
-.todos-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.todo-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.25rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #667eea;
-    transition: all 0.3s;
-}
-
-.todo-item:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateX(4px);
-}
-
-.todo-item.completed {
-    opacity: 0.7;
-    border-left-color: #28a745;
-}
-
-.todo-item.completed .todo-title {
-    text-decoration: line-through;
-    color: #6c757d;
-}
-
-.todo-content {
-    display: flex;
-    align-items: start;
-    gap: 1rem;
-    flex: 1;
-}
-
-.todo-checkbox {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    margin-top: 0.25rem;
-}
-
-.todo-details {
-    flex: 1;
-}
-
-.todo-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 0.5rem 0;
-}
-
-.todo-description {
-    color: #666;
-    margin: 0 0 0.5rem 0;
-    font-size: 0.9rem;
-}
-
-.todo-date {
-    font-size: 0.8rem;
-    color: #999;
-}
-
-.todo-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.stats {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 2px solid #e0e0e0;
-    font-weight: 600;
-    color: #666;
-}
-
-.stats span {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.modal h2 {
-    margin: 0 0 1.5rem 0;
-    color: #333;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
-
-@media (max-width: 640px) {
-    .app-title {
-        font-size: 2rem;
-    }
-
-    .add-todo-section,
-    .todos-container {
-        padding: 1rem;
-    }
-
-    .todo-item {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .todo-actions {
-        width: 100%;
-        justify-content: flex-end;
-    }
-
-    .stats {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-}
-</style>
