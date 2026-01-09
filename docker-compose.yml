@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: todo-api
+    restart: unless-stopped
+    working_dir: /var/www
+    command: sh -c "php artisan migrate --force && php-fpm"
+
+    volumes:
+      - ./:/var/www
+    networks:
+      - todo-network
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:alpine
+    container_name: todo-api-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - todo-network
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    container_name: todo-api-db
+    environment:
+      MYSQL_DATABASE: todo_db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: secret
+      MYSQL_USER: todo_user
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - todo-network
+
+networks:
+  todo-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
