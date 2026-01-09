@@ -29,7 +29,7 @@ class TodoController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'completed' => 'boolean'
+            'is_completed' => 'boolean'
         ]);
 
         $todo = Todo::create($validated);
@@ -78,7 +78,7 @@ class TodoController extends Controller
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'completed' => 'boolean'
+            'is_completed' => 'boolean'
         ]);
 
         $todo->update($validated);
@@ -126,7 +126,7 @@ class TodoController extends Controller
             ], 404);
         }
 
-        $todo->completed = !$todo->completed;
+        $todo->is_completed = !$todo->is_completed;
         $todo->save();
 
         return response()->json([
